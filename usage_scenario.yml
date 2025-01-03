@@ -1,0 +1,22 @@
+name: React Vite App User scenario
+author: Clara Correa <cl_os@uni-bremen.de>
+description: runs user scenario of the react vite app in a docker
+
+services:
+  simple-load-container:
+    image: sampleproject
+    build:
+      context: .
+      dockerfile: ./.Dockerfile
+    environment:
+      NODE_ENV: production
+    ports:
+      - 3000:3000
+
+flow:
+  - name: Stress
+    container: simple-load-container
+    commands:
+      - type: console
+        command: curl http://localhost:3000/
+        note: visit page
