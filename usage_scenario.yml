@@ -1,22 +1,50 @@
 name: React Vite App User scenario
-author: Clara Correa <cl_os@uni-bremen.de>
-description: runs user scenario of the react vite app in a docker
+author: clara osterburg correa
+description: React test
 
 services:
-  simple-load-container:
-    image: sampleproject
+  project:
+    image: project
     build:
-      context: .
-      dockerfile: ./.Dockerfile
+      dockerfile: Dockerfile
     environment:
       NODE_ENV: production
     ports:
       - 3000:3000
+    networks:
+      - chrome-headless
+    deploy:
+      resources:
+        limits:
+          memory: 500M
+          cpus: 1
+  gcb-puppeteer:
+    image: greencoding/puppeteer-chrome
+    volumes:
+      - ./puppeteer-flow.js:/var/www/puppeteer-flow.js
+    environment:
+      # If you have multiple displays please change this to the entry you want under /tmp/X11-unix
+      DISPLAY: ":0"
+    networks:
+      - chrome-headless
+    deploy:
+      resources:
+        limits:
+          memory: 500M
+          cpus: 1
+
+
 
 flow:
-  - name: Stress
-    container: simple-load-container
+  - name: Check Website
+    container: gcb-puppeteer
     commands:
       - type: console
-        command: curl http://localhost:3000/
-        note: visit page
+        command: node /var/www/puppeteer-flow.js
+        note: Starting Puppeteer Flow
+        read-notes-stdout: true
+        log-stdout: true
+        read-sci-stdout: true
+
+networks:
+  chrome-headless:

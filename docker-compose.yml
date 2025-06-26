@@ -1,11 +1,28 @@
 
 services:
-  sampleproject:
-    image: sampleproject
+  project:
+    image: project
+    container_name: project
     build:
-      context: .
-      dockerfile: ./.Dockerfile
+      dockerfile: Dockerfile
     environment:
       NODE_ENV: production
     ports:
       - 3000:3000
+    networks:
+      - chrome-headless
+
+  react-puppeteer:
+    image: greencoding/puppeteer-chrome
+    container_name: react-puppeteer
+    volumes:
+      - ./puppeteer-flow.js:/var/www/puppeteer-flow.js
+    environment:
+      # If you have multiple displays please change this to the entry you want under /tmp/X11-unix
+      DISPLAY: ":0"
+    networks:
+      - chrome-headless
+    entrypoint: ["node", "/var/www/puppeteer-flow.js"]
+
+networks:
+    chrome-headless:
